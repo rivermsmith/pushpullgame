@@ -191,15 +191,22 @@ void DrawPlayer()
 void UpdatePlayer(float elapsedSec)
 {
 	g_Player.pos = Point2f{ g_Player.pos.x + (g_Player.speed.x * elapsedSec), g_Player.pos.y + (g_Player.speed.y * elapsedSec) };
-	if (g_Player.pos.y >= g_WindowHeight - g_Player.circ.radius && g_Player.falling)
-	{
-		g_Player.pos.y = g_WindowHeight - g_Player.circ.radius;
-		g_Player.speed = Vector2f{ g_Player.speed.x, 0.f };
-		g_Player.falling = false;
-	}
+	int lowerIndexPos = static_cast<int>((g_Player.pos.y + g_Player.circ.radius + 1) / g_GridSize) * g_GridWidth + static_cast<int>(g_Player.pos.x / g_GridSize);
+	int upperIndexPos = static_cast<int>((g_Player.pos.y - g_Player.circ.radius) / g_GridSize) * g_GridWidth + static_cast<int>(g_Player.pos.x / g_GridSize);
 	if (g_Player.falling)
 	{
-		g_Player.speed = Add(g_Player.speed, Vector2f{ 0.f, -(g_Gravity * elapsedSec) });
+		if (g_pGridArray[lowerIndexPos] == 1)
+		{
+			g_Player.pos.y = GetRow(lowerIndexPos, g_GridWidth) * g_GridSize - g_Player.circ.radius;
+			g_Player.speed = Vector2f{ g_Player.speed.x, 0.f };
+			g_Player.falling = false;
+		}
+		else if (g_pGridArray[upperIndexPos] == 1)
+		{
+			g_Player.pos.y = (GetRow(upperIndexPos, g_GridWidth) + 1) * g_GridSize + g_Player.circ.radius + 1;
+			g_Player.speed = Vector2f{ g_Player.speed.x, 0.f };
+		}
+		else g_Player.speed = Add(g_Player.speed, Vector2f{ 0.f, -(g_Gravity * elapsedSec) });
 	}
 }
 
@@ -216,17 +223,17 @@ void Init() {
 	g_GridArraySize = g_GridHeight * g_GridWidth;
 
 
-	
+	//Changed array - River
 	g_pGridArray = new int[g_GridArraySize] 
 		{
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		};
 	//for (int col{ 0 }; col < g_GridWidth; ++col) {
