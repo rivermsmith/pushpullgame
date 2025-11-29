@@ -31,15 +31,27 @@ int* g_pGridArray{};
 Point2f g_MousePosition{};
 #pragma endregion Attila
 #pragma region River
+
+enum class lastPressed
+{
+	none,
+	left,
+	right
+};
+
 struct Player
 {
-	Point2f pos{ g_WindowWidth / 2, g_WindowHeight / 2 };
+	const float width{ 70.f };
+	const float height{ 140.f };
+	Point2f pos{ g_WindowWidth / 2, g_WindowHeight - 200.f };
 	Circlef circ{ pos, 50.f };
+	Rectf rect{ pos.x - width / 2, pos.y - height / 2, width, height };
 	float hp{ 100.f };
 	Vector2f speed{};
 	bool falling{ true };
 	bool left{ false };
 	bool right{ false };
+	lastPressed moveState{};
 };
 Player g_Player{};
 const float g_Gravity{ -9.81f * 300 };
@@ -52,6 +64,8 @@ bool g_HoldJump{};
 #pragma region River
 void UpdatePlayer(float elapsedSec);
 void DrawPlayer();
+
+int GetIndexFromPos(const Point2f& pos);
 #pragma endregion River
 
 #pragma region Attila
