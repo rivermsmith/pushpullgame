@@ -23,6 +23,7 @@ void Draw()
 
 #pragma region River
 	DrawPlayer();
+	DrawBullets();
 
 #pragma endregion River
 
@@ -44,6 +45,7 @@ void Update(float elapsedSec)
 	//}
 #pragma region River
 	UpdatePlayer(elapsedSec);
+	UpdateBullets(elapsedSec);
 
 #pragma endregion River
 
@@ -224,7 +226,7 @@ void UpdatePlayer(float elapsedSec)
 	Point2f attemptPos = Point2f{ g_Player.playerEntity.pos.x + (g_Player.playerEntity.speed.x * elapsedSec), g_Player.playerEntity.pos.y + (g_Player.playerEntity.speed.y * elapsedSec) };
 
 	//moves player to the the attempted position calculated at the beginning and modified through these collision checks
-	g_Player.playerEntity.pos = HandleCollision(g_Player.playerEntity, attemptPos);
+	g_Player.playerEntity.pos = HandleWallCollision(g_Player.playerEntity, attemptPos);
 
 	//no vertical collision? keep falling.
 	if (g_Player.falling)
@@ -237,7 +239,31 @@ void UpdatePlayer(float elapsedSec)
 	g_Player.playerEntity.rect.left = g_Player.playerEntity.pos.x - g_Player.playerEntity.width / 2;
 }
 
-Point2f HandleCollision(Entity& entity, Point2f& attemptPos)
+void DrawBullets()
+{
+	SetColor(1.f, 0.6f, 1.f);
+	for (int index{}; index < g_BulletAmount; ++index)
+	{
+		Bullet bullet{ g_pBulletArray[index] };
+		FillRect(bullet.bulletEntity.rect);
+	}
+}
+
+void UpdateBullets(float elapsedSec)
+{
+	//updates each bullet in the array
+	for (int index{}; index < g_BulletAmount; ++index)
+	{
+		Bullet bullet{ g_pBulletArray[index] };
+		Point2f attemptPos = Point2f{ bullet.bulletEntity.pos.x + (bullet.bulletEntity.speed.x * elapsedSec), bullet.bulletEntity.pos.y + (bullet.bulletEntity.speed.y * elapsedSec) };
+		bullet.bulletEntity.pos = HandleWallCollision(bullet.bulletEntity, attemptPos, bullet.bulletIndex);
+		bullet.bulletEntity.rect.top = bullet.bulletEntity.pos.y - bullet.bulletEntity.height / 2;
+		bullet.bulletEntity.rect.left = bullet.bulletEntity.pos.x - bullet.bulletEntity.width / 2;
+		g_pBulletArray[index] = bullet;
+	}
+}
+
+Point2f HandleWallCollision(Entity& entity, Point2f& attemptPos, int bulletIndex)
 {
 	//finds the positions of the corners of the rectangle
 	//this is used in conjunction with the attempted position to determine the direction the rectangle is colliding from
@@ -255,10 +281,10 @@ Point2f HandleCollision(Entity& entity, Point2f& attemptPos)
 	}
 
 	//finds the positions of the corners of the new attempted position of the rectangle and then finds the index number for what tile they are colliding with
-	Point2f lowerRightPos{ attemptPos.x + entity.width * 0.5f - 1, attemptPos.y + g_Player.playerEntity.height * 0.5f - 1 };
-	Point2f lowerLeftPos{ attemptPos.x - entity.width * 0.5f + 1, attemptPos.y + g_Player.playerEntity.height * 0.5f - 1 };
-	Point2f upperLeftPos{ attemptPos.x - entity.width * 0.5f + 1, attemptPos.y - g_Player.playerEntity.height * 0.5f + 1 };
-	Point2f upperRightPos{ attemptPos.x + entity.width * 0.5f - 1, attemptPos.y - g_Player.playerEntity.height * 0.5f + 1 };
+	Point2f lowerRightPos{ attemptPos.x + entity.width * 0.5f - 1, attemptPos.y + entity.height * 0.5f - 1 };
+	Point2f lowerLeftPos{ attemptPos.x - entity.width * 0.5f + 1, attemptPos.y + entity.height * 0.5f - 1 };
+	Point2f upperLeftPos{ attemptPos.x - entity.width * 0.5f + 1, attemptPos.y - entity.height * 0.5f + 1 };
+	Point2f upperRightPos{ attemptPos.x + entity.width * 0.5f - 1, attemptPos.y - entity.height * 0.5f + 1 };
 	int lowerRightIndexPos{ GetIndexFromPos(lowerRightPos) };
 	int lowerLeftIndexPos{ GetIndexFromPos(lowerLeftPos) };
 	int upperLeftIndexPos{ GetIndexFromPos(upperLeftPos) };
@@ -374,42 +400,97 @@ Point2f HandleCollision(Entity& entity, Point2f& attemptPos)
 			break;
 		}
 	}
-	if (collidingDown)
-	{
-		entity.pos.y = GetRow(lowerLeftIndexPos, g_GridWidth) * g_GridSize - entity.height * 0.5f - 1.f;
-		attemptPos.y = entity.pos.y;
-		entity.speed = Vector2f{ entity.speed.x, 0.f };
-		if (entity.type == entityType::player) {
-			g_Player.falling = false;
+
+	//if a bullet is colliding, deletes it
+	if (entity.type == entityType::bullet) {
+		if (collidingDown || collidingUp || collidingLeft || collidingRight)
+		{
+			RemoveBullet(g_pBulletArray[bulletIndex]);
 		}
 	}
-	if (collidingUp)
+	else
 	{
-		entity.pos.y = (GetRow(upperLeftIndexPos, g_GridWidth) + 1) * g_GridSize + entity.height * 0.5f - 1.f;
-		attemptPos.y = entity.pos.y;
-		entity.speed = Vector2f{ entity.speed.x, 0.f };
-	}
+		if (collidingDown)
+		{
+			entity.pos.y = GetRow(lowerLeftIndexPos, g_GridWidth) * g_GridSize - entity.height * 0.5f - 1.f;
+			attemptPos.y = entity.pos.y;
+			entity.speed = Vector2f{ entity.speed.x, 0.f };
+			if (entity.type == entityType::player) {
+				g_Player.falling = false;
+			}
+		}
+		if (collidingUp)
+		{
+			entity.pos.y = (GetRow(upperLeftIndexPos, g_GridWidth) + 1) * g_GridSize + entity.height * 0.5f - 1.f;
+			attemptPos.y = entity.pos.y;
+			entity.speed = Vector2f{ entity.speed.x, 0.f };
+		}
 
-	if (collidingLeft)
-	{
-		entity.pos.x = (GetCol(leftIndexPos, g_GridWidth) + 1) * g_GridSize + entity.width * 0.5f + 1.f;
-		attemptPos.x = entity.pos.x;
-		entity.speed = Vector2f{ 0.f, entity.speed.y };
-	}
-	if (collidingRight)
-	{
-		entity.pos.x = GetCol(rightIndexPos, g_GridWidth) * g_GridSize - entity.width * 0.5f - 1.f;
-		attemptPos.x = entity.pos.x;
-		entity.speed = Vector2f{ 0.f, entity.speed.y };
+		if (collidingLeft)
+		{
+			entity.pos.x = (GetCol(leftIndexPos, g_GridWidth) + 1) * g_GridSize + entity.width * 0.5f + 1.f;
+			attemptPos.x = entity.pos.x;
+			entity.speed = Vector2f{ 0.f, entity.speed.y };
+		}
+		if (collidingRight)
+		{
+			entity.pos.x = GetCol(rightIndexPos, g_GridWidth) * g_GridSize - entity.width * 0.5f - 1.f;
+			attemptPos.x = entity.pos.x;
+			entity.speed = Vector2f{ 0.f, entity.speed.y };
+		}
 	}
 	
 	return attemptPos;
 }
 
+//to be implemented
+void HandleEntityCollision(Entity& entity, Point2f& attemptPos)
+{
+
+}
+
+//create 2 bullets on game start for testing
+void DebugBullet()
+{
+	CreateBullet(Point2f{ g_WindowWidth - 200.f, 200.f }, Vector2f{ -200.f, 200.f });
+	CreateBullet(Point2f{ 200.f, 200.f }, Vector2f{ 250.f, 200.f });
+}
+
+//creates a new bullet if there are less than max bullets, and returns the index of the created bullet within the bullet array. raises current bullet amount
+int CreateBullet(const Point2f& startPos, const Vector2f& speed)
+{
+	if (g_BulletAmount < g_MaxBulletAmount)
+	{
+		Bullet bullet{};
+		bullet.bulletEntity.pos = startPos;
+		bullet.bulletEntity.width = 15.f;
+		bullet.bulletEntity.height = 15.f;
+		bullet.bulletEntity.speed = speed;
+		bullet.bulletEntity.rect.width = 15.f;
+		bullet.bulletEntity.rect.height = 15.f;
+		g_pBulletArray[g_BulletAmount] = bullet;
+		++g_BulletAmount;
+		return g_BulletAmount - 1;
+	}
+	else return -1;
+}
+
+//removes a bullet from the bullet array and moves everything after it down by 1. decrements current bullet amount
+void RemoveBullet(Bullet& bullet)
+{
+	for (int index{ bullet.bulletIndex }; index <= g_BulletAmount; ++index)
+	{
+		g_pBulletArray[index] = g_pBulletArray[index + 1];
+		g_pBulletArray[index + 1] = Bullet{};
+		--g_BulletAmount;
+	}
+}
 #pragma endregion River
 
 #pragma region Attila
 void Init() {
+	//Placeholder -River
+
 	g_Debug = true;
 
 	g_GridSize = 80.f;
@@ -418,16 +499,20 @@ void Init() {
 	g_GridHeight = static_cast<int>(g_WindowHeight / g_GridSize);
 	g_GridArraySize = g_GridHeight * g_GridWidth;
 
+	g_pBulletArray = new Bullet[g_MaxBulletAmount]{};
 
-	//Changed array - River
+	//for initial bullet testing only -River
+	DebugBullet();
+
+	//Changed array -River
 	g_pGridArray = new int[g_GridArraySize] 
 		{
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1,
 			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -441,6 +526,8 @@ void Init() {
 void Delete() {
 	delete[] g_pGridArray;
 	g_pGridArray = nullptr;
+	delete g_pBulletArray;
+	g_pBulletArray = nullptr;
 }
 
 void DrawPlatforms() {

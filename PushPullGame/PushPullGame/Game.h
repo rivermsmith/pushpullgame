@@ -32,6 +32,9 @@ Point2f g_MousePosition{};
 #pragma endregion Attila
 #pragma region River
 
+int g_BulletAmount{};
+const int g_MaxBulletAmount{ 50 };
+
 enum class lastPressed
 {
 	none,
@@ -48,14 +51,22 @@ enum class entityType
 
 struct Entity
 {
-	const float width{};
-	const float height{};
+	float width{};
+	float height{};
 	Point2f pos{};
 	float hp{};
 	entityType type{};
 	Vector2f speed{};
 	Rectf rect{ pos.x - width / 2, pos.y - height / 2, width, height };
 };
+
+struct Bullet
+{
+	Entity bulletEntity{ 0.f, 0.f, Point2f{ 200.f, 200.f }, 1.f, entityType::bullet, Vector2f{} };
+	int bulletIndex{};
+};
+
+Bullet* g_pBulletArray{};
 
 struct Player
 {
@@ -79,10 +90,18 @@ bool g_HoldJump{};
 // Declare your own functions here
 #pragma region River
 void UpdatePlayer(float elapsedSec);
+void UpdateBullets(float elapsedSec);
 void DrawPlayer();
+void DrawBullets();
+int CreateBullet(const Point2f& startPos, const Vector2f& speed);
+
+void RemoveBullet(Bullet& bullet);
+
+void DebugBullet();
 
 int GetIndexFromPos(const Point2f& pos);
-Point2f HandleCollision(Entity& entity, Point2f& attemptPos);
+Point2f HandleWallCollision(Entity& entity, Point2f& attemptPos, int bulletIndex = 0);
+void HandleEntityCollision(Entity& entity, Point2f& attemptPos);
 
 #pragma endregion River
 
