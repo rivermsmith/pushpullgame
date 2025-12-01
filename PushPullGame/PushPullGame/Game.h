@@ -48,8 +48,8 @@ enum class entityType
 
 struct Entity
 {
-	const float width{};
-	const float height{};
+	float width{};
+	float height{};
 	Point2f pos{};
 	float hp{};
 	entityType type{};
@@ -72,24 +72,20 @@ struct Player
 	lastPressed moveState{};
 };
 struct Enemy {
-	Entity enemyEntity{
-		40.f, 40.f,
-		Point2f{160.f, 160.f},
-		10.f, entityType::enemy
-	};
-};
-struct Bullet
-{
-	Entity buletEntity{
-		10.f, 5.f,
-		Point2f{},
-		1.f,
-		entityType::bullet
-	};
+	Entity enemyEntity{};
+	int fireSpeed{};
+	float lastShot{};
 };
 
 Player g_Player{};
-Enemy g_Enemy{};
+Enemy g_Enemy{
+	Entity{
+		40.f, 40.f,
+		Point2f{160.f, 160.f},
+		10.f, entityType::enemy
+	},
+	3, 0.f
+};
 const float g_Gravity{ -9.81f * 300 };
 const float g_MoveSpeed{ 900.f };
 const float g_JumpSpeed{ 1800.f };
@@ -113,12 +109,15 @@ void DrawPlatforms();
 void DrawPushPullRange();
 void DrawEnemy(const Enemy& enemy);
 
+void UpdateEnemy(Enemy& enemy, float elapsedSec);
+
 //void CreatePlatforms(int array[], int gridWidth, int startRow, int endRow, int startCol, int endCol);
 
 int GetIndex(int rowIdx, int colIdx, int nrCols);
 int GetRow(int index, int numCols);
 int GetCol(int index, int numCols);
 Color4f rgba(float r, float g, float b, float a = 255);
+float calculateAngle(const Point2f& originPoint, const Point2f& endPoint);
 #pragma endregion Attila
 
 #pragma endregion ownDeclarations

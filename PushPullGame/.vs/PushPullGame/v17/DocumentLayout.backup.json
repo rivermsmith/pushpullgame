@@ -18,21 +18,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Game.cpp",
-              "DocumentMoniker": "C:\\DAE\\Programing1\\PushPullGame\\pushpullgame\\PushPullGame\\PushPullGame\\Game.cpp",
-              "RelativeDocumentMoniker": "PushPullGame\\Game.cpp",
-              "ToolTip": "C:\\DAE\\Programing1\\PushPullGame\\pushpullgame\\PushPullGame\\PushPullGame\\Game.cpp",
-              "RelativeToolTip": "PushPullGame\\Game.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAOAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-11-24T14:26:52.884Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Document",
               "DocumentIndex": 1,
@@ -41,9 +28,22 @@
               "RelativeDocumentMoniker": "PushPullGame\\Game.h",
               "ToolTip": "C:\\DAE\\Programing1\\PushPullGame\\pushpullgame\\PushPullGame\\PushPullGame\\Game.h",
               "RelativeToolTip": "PushPullGame\\Game.h",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAAAGgAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAFUAAAAAAAAAAAD4v3cAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2025-11-24T14:24:20.47Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Game.cpp",
+              "DocumentMoniker": "C:\\DAE\\Programing1\\PushPullGame\\pushpullgame\\PushPullGame\\PushPullGame\\Game.cpp",
+              "RelativeDocumentMoniker": "PushPullGame\\Game.cpp",
+              "ToolTip": "C:\\DAE\\Programing1\\PushPullGame\\pushpullgame\\PushPullGame\\PushPullGame\\Game.cpp",
+              "RelativeToolTip": "PushPullGame\\Game.cpp",
+              "ViewState": "AgIAAOwBAAAAAAAAAAD4vxcCAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-11-24T14:26:52.884Z",
               "EditorCaption": ""
             }
           ]
