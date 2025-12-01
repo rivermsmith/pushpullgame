@@ -19,6 +19,7 @@ void Draw()
 #pragma region Attila
 	DrawPlatforms();
 	DrawPushPullRange();
+	DrawEnemy(g_Enemy);
 #pragma endregion Attila
 
 #pragma region River
@@ -464,7 +465,6 @@ void DrawPlatforms() {
 		}
 	}
 }
-
 void DrawPushPullRange() {
 	const float
 		rayLength{ 500.f },
@@ -535,6 +535,14 @@ void DrawPushPullRange() {
 	utils::SetColor(purple);
 	utils::FillArc(g_Player.playerEntity.pos, rayLength, rayLength, rayAngle - rayWidth / 2.f, rayAngle + rayWidth / 2.f);
 }
+void DrawEnemy(const Enemy& enemy) {
+	const Color4f
+		gray{ rgba(119, 123, 134) };
+
+	utils::SetColor(gray);
+	utils::FillRect(enemy.enemyEntity.rect);
+}
+
 
 //void CreatePlatforms(int array[], int gridWidth, int startRow, int endRow, int startCol, int endCol) {
 //	for (int col{ startCol }; col < endCol; ++col) {
@@ -552,6 +560,10 @@ int GetRow(int index, int numCols) {
 }
 int GetCol(int index, int numCols) {
 	return index % numCols;
+}
+Color4f rgba(float r, float g, float b, float a) {
+	float colorBit{ 255 };
+	return Color4f{ r / colorBit, g / colorBit, b / colorBit, a / colorBit };
 }
 
 #pragma endregion Attila
