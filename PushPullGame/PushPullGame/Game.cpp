@@ -64,19 +64,19 @@ void OnKeyDownEvent(SDL_Keycode key)
 	switch (key)
 	{
 	case SDLK_a:
-		g_Player.speed.x = -g_MoveSpeed;
+		g_Player.playerEntity.speed.x = -g_MoveSpeed;
 		g_Player.left = true;
 		g_Player.moveState = lastPressed::left;
 		break;
 	case SDLK_d:
-		g_Player.speed.x = g_MoveSpeed;
+		g_Player.playerEntity.speed.x = g_MoveSpeed;
 		g_Player.right = true;
 		g_Player.moveState = lastPressed::right;
 		break;
 	case SDLK_SPACE:
 		if (!g_Player.falling && !g_HoldJump)
 		{
-			g_Player.speed = Add(g_Player.speed, Vector2f{ 0.f, -g_JumpSpeed });
+			g_Player.playerEntity.speed = Add(g_Player.playerEntity.speed, Vector2f{ 0.f, -g_JumpSpeed });
 			g_Player.falling = true;
 			g_HoldJump = true;
 		}
@@ -133,9 +133,9 @@ void OnKeyUpEvent(SDL_Keycode key)
 		}
 		break;
 	case SDLK_SPACE:
-		if (g_Player.speed.y < 0)
+		if (g_Player.playerEntity.speed.y < 0)
 		{
-			g_Player.speed.y = 0;
+			g_Player.playerEntity.speed.y = 0;
 		}
 		g_HoldJump = false;
 		break;
@@ -192,53 +192,73 @@ void OnMouseUpEvent(const SDL_MouseButtonEvent& e)
 void DrawPlayer()
 {
 	SetColor(1.f, 0.6f, 0.6f);
-	FillRect(g_Player.rect);
+	FillRect(g_Player.playerEntity.rect);
 	if (g_Debug) {
 		SetColor(1.f, 0.f, 0.f);
-		DrawVector(g_Player.pos, Scale(g_Player.speed, 0.125f));
-		DrawArc(g_Player.pos.x - g_Player.width * 0.5f, (g_Player.pos.y - g_Player.height * 0.5f), 10.f, 10.f, 0.f, 2 * g_Pi);
-		DrawArc(g_Player.pos.x + g_Player.width * 0.5f, (g_Player.pos.y - g_Player.height * 0.5f), 10.f, 10.f, 0.f, 2 * g_Pi);
-		DrawArc(g_Player.pos.x - g_Player.width * 0.5f, (g_Player.pos.y + g_Player.height * 0.5f), 10.f, 10.f, 0.f, 2 * g_Pi);
-		DrawArc(g_Player.pos.x + g_Player.width * 0.5f, (g_Player.pos.y + g_Player.height * 0.5f), 10.f, 10.f, 0.f, 2 * g_Pi);
+		DrawVector(g_Player.playerEntity.pos, Scale(g_Player.playerEntity.speed, 0.125f));
+		DrawArc(g_Player.playerEntity.pos.x - g_Player.playerEntity.width * 0.5f, (g_Player.playerEntity.pos.y - g_Player.playerEntity.height * 0.5f), 10.f, 10.f, 0.f, 2 * g_Pi);
+		DrawArc(g_Player.playerEntity.pos.x + g_Player.playerEntity.width * 0.5f, (g_Player.playerEntity.pos.y - g_Player.playerEntity.height * 0.5f), 10.f, 10.f, 0.f, 2 * g_Pi);
+		DrawArc(g_Player.playerEntity.pos.x - g_Player.playerEntity.width * 0.5f, (g_Player.playerEntity.pos.y + g_Player.playerEntity.height * 0.5f), 10.f, 10.f, 0.f, 2 * g_Pi);
+		DrawArc(g_Player.playerEntity.pos.x + g_Player.playerEntity.width * 0.5f, (g_Player.playerEntity.pos.y + g_Player.playerEntity.height * 0.5f), 10.f, 10.f, 0.f, 2 * g_Pi);
 	}
 	SetColor(1.f, 0.f, 0.f);
 }
 
 void UpdatePlayer(float elapsedSec)
 {
+	//handles horizontal movement direction
 	switch (g_Player.moveState)
 	{
 		case lastPressed::none:
-			g_Player.speed.x = 0;
+			g_Player.playerEntity.speed.x = 0;
 			break;
 		case lastPressed::left:
-			g_Player.speed.x = -g_MoveSpeed;
+			g_Player.playerEntity.speed.x = -g_MoveSpeed;
 			break;
 		case lastPressed::right:
-			g_Player.speed.x = g_MoveSpeed;
+			g_Player.playerEntity.speed.x = g_MoveSpeed;
 			break;
 	}
-	//position the player will attempt to move to. the position is located in the exact center of the rectangle, hence the half height and half width increases to find the borders of it
-	Point2f attemptPos = Point2f{ g_Player.pos.x + (g_Player.speed.x * elapsedSec), g_Player.pos.y + (g_Player.speed.y * elapsedSec) };
 
+	//position the player will attempt to move to. the position is located in the exact center of the rectangle, hence the half height and half width increases to find the borders of it
+	Point2f attemptPos = Point2f{ g_Player.playerEntity.pos.x + (g_Player.playerEntity.speed.x * elapsedSec), g_Player.playerEntity.pos.y + (g_Player.playerEntity.speed.y * elapsedSec) };
+
+	//moves player to the the attempted position calculated at the beginning and modified through these collision checks
+	g_Player.playerEntity.pos = HandleCollision(g_Player.playerEntity, attemptPos);
+
+	//no vertical collision? keep falling.
+	if (g_Player.falling)
+	{
+		g_Player.playerEntity.speed = Add(g_Player.playerEntity.speed, Vector2f{ 0.f, -(g_Gravity * elapsedSec) });
+	}
+
+	//updates rectangle info for drawing the player
+	g_Player.playerEntity.rect.top = g_Player.playerEntity.pos.y - g_Player.playerEntity.height / 2;
+	g_Player.playerEntity.rect.left = g_Player.playerEntity.pos.x - g_Player.playerEntity.width / 2;
+}
+
+Point2f HandleCollision(Entity& entity, Point2f& attemptPos)
+{
 	//finds the positions of the corners of the rectangle
 	//this is used in conjunction with the attempted position to determine the direction the rectangle is colliding from
-	Point2f oldLowerRightPos{ g_Player.pos.x + g_Player.width * 0.5f - 1, g_Player.pos.y + g_Player.height * 0.5f - 1 };
-	Point2f oldLowerLeftPos{ g_Player.pos.x - g_Player.width * 0.5f + 1, g_Player.pos.y + g_Player.height * 0.5f - 1 };
-	Point2f oldUpperLeftPos{ g_Player.pos.x - g_Player.width * 0.5f + 1, g_Player.pos.y - g_Player.height * 0.5f + 1 };
-	Point2f oldUpperRightPos{ g_Player.pos.x + g_Player.width * 0.5f - 1, g_Player.pos.y - g_Player.height * 0.5f + 1 };
+	Point2f oldLowerRightPos{ entity.pos.x + entity.width * 0.5f - 1, entity.pos.y + entity.height * 0.5f - 1 };
+	Point2f oldLowerLeftPos{ entity.pos.x - entity.width * 0.5f + 1, entity.pos.y + entity.height * 0.5f - 1 };
+	Point2f oldUpperLeftPos{ entity.pos.x - entity.width * 0.5f + 1, entity.pos.y - entity.height * 0.5f + 1 };
+	Point2f oldUpperRightPos{ entity.pos.x + entity.width * 0.5f - 1, entity.pos.y - entity.height * 0.5f + 1 };
 
 	//triggers gravity if walking off side of platform
-	if (g_pGridArray[GetIndexFromPos(Point2f{ oldLowerRightPos.x, oldLowerRightPos.y + 2.f })] == 0 && g_pGridArray[GetIndexFromPos(Point2f{ oldLowerLeftPos.x, oldLowerLeftPos.y + 2.f })] == 0)
+	if (entity.type == entityType::player
+		&& g_pGridArray[GetIndexFromPos(Point2f{ oldLowerRightPos.x, oldLowerRightPos.y + 2.f })] == 0
+		&& g_pGridArray[GetIndexFromPos(Point2f{ oldLowerLeftPos.x, oldLowerLeftPos.y + 2.f })] == 0)
 	{
 		g_Player.falling = true;
 	}
 
 	//finds the positions of the corners of the new attempted position of the rectangle and then finds the index number for what tile they are colliding with
-	Point2f lowerRightPos{ attemptPos.x + g_Player.width * 0.5f - 1, attemptPos.y + g_Player.height * 0.5f - 1 };
-	Point2f lowerLeftPos{ attemptPos.x - g_Player.width * 0.5f + 1, attemptPos.y + g_Player.height * 0.5f - 1 };
-	Point2f upperLeftPos{ attemptPos.x - g_Player.width * 0.5f + 1, attemptPos.y - g_Player.height * 0.5f + 1 };
-	Point2f upperRightPos{ attemptPos.x + g_Player.width * 0.5f - 1, attemptPos.y - g_Player.height * 0.5f + 1 };
+	Point2f lowerRightPos{ attemptPos.x + entity.width * 0.5f - 1, attemptPos.y + g_Player.playerEntity.height * 0.5f - 1 };
+	Point2f lowerLeftPos{ attemptPos.x - entity.width * 0.5f + 1, attemptPos.y + g_Player.playerEntity.height * 0.5f - 1 };
+	Point2f upperLeftPos{ attemptPos.x - entity.width * 0.5f + 1, attemptPos.y - g_Player.playerEntity.height * 0.5f + 1 };
+	Point2f upperRightPos{ attemptPos.x + entity.width * 0.5f - 1, attemptPos.y - g_Player.playerEntity.height * 0.5f + 1 };
 	int lowerRightIndexPos{ GetIndexFromPos(lowerRightPos) };
 	int lowerLeftIndexPos{ GetIndexFromPos(lowerLeftPos) };
 	int upperLeftIndexPos{ GetIndexFromPos(upperLeftPos) };
@@ -249,19 +269,16 @@ void UpdatePlayer(float elapsedSec)
 	bool collidingRight{};
 
 	//vertical collision
-	if (g_Player.falling)
+	//downward collision
+	if (g_pGridArray[lowerRightIndexPos] == 1 || g_pGridArray[lowerLeftIndexPos] == 1)
 	{
-		//downward collision
-		if (g_pGridArray[lowerRightIndexPos] == 1 || g_pGridArray[lowerLeftIndexPos] == 1)
-		{
-			collidingDown = true;
-		}
+		collidingDown = true;
+	}
 
-		//upward collision
-		if (g_pGridArray[upperRightIndexPos] == 1 || g_pGridArray[upperLeftIndexPos] == 1)
-		{
-			collidingUp = true;
-		}
+	//upward collision
+	if (g_pGridArray[upperRightIndexPos] == 1 || g_pGridArray[upperLeftIndexPos] == 1)
+	{
+		collidingUp = true;
 	}
 
 	//horizontal collision
@@ -274,12 +291,12 @@ void UpdatePlayer(float elapsedSec)
 	int rightIndexPos{};
 
 	//scans along height of rectangle to find collision, then breaks loop
-	for (float index{ 1 }; index < g_Player.height - 1; ++index)
+	for (float index{ 1 }; index < entity.height - 1; ++index)
 	{
-		oldLeftPos = Point2f{ g_Player.pos.x - g_Player.width * 0.5f, (g_Player.pos.y - g_Player.height * 0.5f) + index };
-		oldRightPos = Point2f{ g_Player.pos.x + g_Player.width * 0.5f, (g_Player.pos.y - g_Player.height * 0.5f) + index };
-		leftPos = Point2f{ attemptPos.x - g_Player.width * 0.5f, (attemptPos.y - g_Player.height * 0.5f) + index };
-		rightPos = Point2f{ attemptPos.x + g_Player.width * 0.5f, (attemptPos.y - g_Player.height * 0.5f) + index };
+		oldLeftPos = Point2f{ entity.pos.x - entity.width * 0.5f, (entity.pos.y - entity.height * 0.5f) + index };
+		oldRightPos = Point2f{ entity.pos.x + entity.width * 0.5f, (entity.pos.y - entity.height * 0.5f) + index };
+		leftPos = Point2f{ attemptPos.x - entity.width * 0.5f, (attemptPos.y - entity.height * 0.5f) + index };
+		rightPos = Point2f{ attemptPos.x + entity.width * 0.5f, (attemptPos.y - entity.height * 0.5f) + index };
 		leftIndexPos = GetIndexFromPos(leftPos);
 		rightIndexPos = GetIndexFromPos(rightPos);
 
@@ -300,7 +317,7 @@ void UpdatePlayer(float elapsedSec)
 			}
 			else
 			{
-				for (float diffIndex{ 1 }; diffIndex < (g_Player.height - index); ++diffIndex)
+				for (float diffIndex{ 1 }; diffIndex < (entity.height - index); ++diffIndex)
 				{
 					if (g_pGridArray[GetIndexFromPos(Point2f{ leftPos.x, oldLeftPos.y + diffIndex })] == 1)
 					{
@@ -337,7 +354,7 @@ void UpdatePlayer(float elapsedSec)
 			}
 			else
 			{
-				for (float diffIndex{ 1 }; diffIndex < (g_Player.height - index); ++diffIndex)
+				for (float diffIndex{ 1 }; diffIndex < (entity.height - index); ++diffIndex)
 				{
 					if (g_pGridArray[GetIndexFromPos(Point2f{ rightPos.x, oldRightPos.y + diffIndex })] == 1)
 					{
@@ -359,42 +376,34 @@ void UpdatePlayer(float elapsedSec)
 	}
 	if (collidingDown)
 	{
-		g_Player.pos.y = GetRow(lowerLeftIndexPos, g_GridWidth) * g_GridSize - g_Player.height * 0.5f - 1.f;
-		attemptPos.y = g_Player.pos.y;
-		g_Player.speed = Vector2f{ g_Player.speed.x, 0.f };
-		g_Player.falling = false;
+		entity.pos.y = GetRow(lowerLeftIndexPos, g_GridWidth) * g_GridSize - entity.height * 0.5f - 1.f;
+		attemptPos.y = entity.pos.y;
+		entity.speed = Vector2f{ entity.speed.x, 0.f };
+		if (entity.type == entityType::player) {
+			g_Player.falling = false;
+		}
 	}
 	if (collidingUp)
 	{
-		g_Player.pos.y = (GetRow(upperLeftIndexPos, g_GridWidth) + 1) * g_GridSize + g_Player.height * 0.5f - 1.f;
-		attemptPos.y = g_Player.pos.y;
-		g_Player.speed = Vector2f{ g_Player.speed.x, 0.f };
-	}
-	//no vertical collision? keep falling.
-	if (g_Player.falling)
-	{
-		g_Player.speed = Add(g_Player.speed, Vector2f{ 0.f, -(g_Gravity * elapsedSec) });
+		entity.pos.y = (GetRow(upperLeftIndexPos, g_GridWidth) + 1) * g_GridSize + entity.height * 0.5f - 1.f;
+		attemptPos.y = entity.pos.y;
+		entity.speed = Vector2f{ entity.speed.x, 0.f };
 	}
 
 	if (collidingLeft)
 	{
-		g_Player.pos.x = (GetCol(leftIndexPos, g_GridWidth) + 1) * g_GridSize + g_Player.width * 0.5f + 1.f;
-		attemptPos.x = g_Player.pos.x;
-		g_Player.speed = Vector2f{ 0.f, g_Player.speed.y };
+		entity.pos.x = (GetCol(leftIndexPos, g_GridWidth) + 1) * g_GridSize + entity.width * 0.5f + 1.f;
+		attemptPos.x = entity.pos.x;
+		entity.speed = Vector2f{ 0.f, entity.speed.y };
 	}
 	if (collidingRight)
 	{
-		g_Player.pos.x = GetCol(rightIndexPos, g_GridWidth) * g_GridSize - g_Player.width * 0.5f - 1.f;
-		attemptPos.x = g_Player.pos.x;
-		g_Player.speed = Vector2f{ 0.f, g_Player.speed.y };
+		entity.pos.x = GetCol(rightIndexPos, g_GridWidth) * g_GridSize - entity.width * 0.5f - 1.f;
+		attemptPos.x = entity.pos.x;
+		entity.speed = Vector2f{ 0.f, entity.speed.y };
 	}
-
-	//moves player to the the attempted position calculated at the beginning and modified through these collision checks
-	g_Player.pos = attemptPos;
-
-	//updates rectangle info for drawing the player
-	g_Player.rect.top = g_Player.pos.y - g_Player.height / 2;
-	g_Player.rect.left = g_Player.pos.x - g_Player.width / 2;
+	
+	return attemptPos;
 }
 
 #pragma endregion River
@@ -460,8 +469,8 @@ void DrawPushPullRange() {
 	const float
 		rayLength{ 500.f },
 		rayWidth{ g_Pi / 180 * 5 },
-		adj{ g_MousePosition.x - g_Player.pos.x },
-		opp{ g_Player.pos.y - g_MousePosition.y },
+		adj{ g_MousePosition.x - g_Player.playerEntity.pos.x },
+		opp{ g_Player.playerEntity.pos.y - g_MousePosition.y },
 		mouseDistance{
 			sqrtf(powf(adj, 2) + powf(opp, 2))
 		};
@@ -501,13 +510,13 @@ void DrawPushPullRange() {
 			green{ 0.f,1.f,0.f,1.f };
 		
 		utils::SetColor(pink);
-		utils::DrawLine(g_MousePosition, g_Player.pos);
+		utils::DrawLine(g_MousePosition, g_Player.playerEntity.pos);
 
 		utils::SetColor(blue);
-		utils::DrawLine(g_Player.pos, Point2f{ g_MousePosition.x, g_Player.pos.y });
+		utils::DrawLine(g_Player.playerEntity.pos, Point2f{ g_MousePosition.x, g_Player.playerEntity.pos.y });
 
 		utils::SetColor(green);
-		utils::DrawLine(g_Player.pos, Point2f{ g_Player.pos.x, g_MousePosition.y });
+		utils::DrawLine(g_Player.playerEntity.pos, Point2f{ g_Player.playerEntity.pos.x, g_MousePosition.y });
 	}
 
 	const Color4f
@@ -515,16 +524,16 @@ void DrawPushPullRange() {
 
 	const Point2f
 		leftEnd{
-			g_Player.pos.x + rayLength * std::cosf(rayAngle + rayWidth / 2.f),
-			g_Player.pos.y - rayLength * std::sinf(rayAngle + rayWidth / 2.f)
+			g_Player.playerEntity.pos.x + rayLength * std::cosf(rayAngle + rayWidth / 2.f),
+			g_Player.playerEntity.pos.y - rayLength * std::sinf(rayAngle + rayWidth / 2.f)
 		},
 		rightEnd{
-			g_Player.pos.x + rayLength * std::cosf(rayAngle - rayWidth / 2.f),
-			g_Player.pos.y - rayLength * std::sinf(rayAngle - rayWidth / 2.f)
+			g_Player.playerEntity.pos.x + rayLength * std::cosf(rayAngle - rayWidth / 2.f),
+			g_Player.playerEntity.pos.y - rayLength * std::sinf(rayAngle - rayWidth / 2.f)
 		};
 
 	utils::SetColor(purple);
-	utils::FillArc(g_Player.pos, rayLength, rayLength, rayAngle - rayWidth / 2.f, rayAngle + rayWidth / 2.f);
+	utils::FillArc(g_Player.playerEntity.pos, rayLength, rayLength, rayAngle - rayWidth / 2.f, rayAngle + rayWidth / 2.f);
 }
 
 //void CreatePlatforms(int array[], int gridWidth, int startRow, int endRow, int startCol, int endCol) {

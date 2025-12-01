@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\DAE\\Programing1\\PushPullGame\\",
+  "WorkspaceRootPath": "C:\\Users\\shane\\Documents\\Programming 1\\2DGridGameProject\\PushPullGame\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C2265A44-658C-44DE-8FCA-98D5DDA8AF3D}|PushPullGame\\PushPullGame.vcxproj|C:\\DAE\\Programing1\\PushPullGame\\PushPullGame\\Game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{C2265A44-658C-44DE-8FCA-98D5DDA8AF3D}|PushPullGame\\PushPullGame.vcxproj|C:\\Users\\shane\\Documents\\Programming 1\\2DGridGameProject\\PushPullGame\\PushPullGame\\Game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{C2265A44-658C-44DE-8FCA-98D5DDA8AF3D}|PushPullGame\\PushPullGame.vcxproj|solutionrelative:PushPullGame\\Game.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C2265A44-658C-44DE-8FCA-98D5DDA8AF3D}|PushPullGame\\PushPullGame.vcxproj|C:\\DAE\\Programing1\\PushPullGame\\PushPullGame\\Game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{C2265A44-658C-44DE-8FCA-98D5DDA8AF3D}|PushPullGame\\PushPullGame.vcxproj|C:\\Users\\shane\\Documents\\Programming 1\\2DGridGameProject\\PushPullGame\\PushPullGame\\Game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{C2265A44-658C-44DE-8FCA-98D5DDA8AF3D}|PushPullGame\\PushPullGame.vcxproj|solutionrelative:PushPullGame\\Game.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -24,11 +24,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Game.cpp",
-              "DocumentMoniker": "C:\\DAE\\Programing1\\PushPullGame\\PushPullGame\\Game.cpp",
+              "DocumentMoniker": "C:\\Users\\shane\\Documents\\Programming 1\\2DGridGameProject\\PushPullGame\\PushPullGame\\Game.cpp",
               "RelativeDocumentMoniker": "PushPullGame\\Game.cpp",
-              "ToolTip": "C:\\DAE\\Programing1\\PushPullGame\\PushPullGame\\Game.cpp",
+              "ToolTip": "C:\\Users\\shane\\Documents\\Programming 1\\2DGridGameProject\\PushPullGame\\PushPullGame\\Game.cpp",
               "RelativeToolTip": "PushPullGame\\Game.cpp",
-              "ViewState": "AgIAAH4AAAAAAAAAAAAAwM4AAAAjAAAAAAAAAA==",
+              "ViewState": "AgIAAOEAAAAAAAAAAAAAAOsAAABdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-11-24T14:26:52.884Z",
               "EditorCaption": ""
@@ -37,13 +37,14 @@
               "$type": "Document",
               "DocumentIndex": 1,
               "Title": "Game.h",
-              "DocumentMoniker": "C:\\DAE\\Programing1\\PushPullGame\\PushPullGame\\Game.h",
+              "DocumentMoniker": "C:\\Users\\shane\\Documents\\Programming 1\\2DGridGameProject\\PushPullGame\\PushPullGame\\Game.h",
               "RelativeDocumentMoniker": "PushPullGame\\Game.h",
-              "ToolTip": "C:\\DAE\\Programing1\\PushPullGame\\PushPullGame\\Game.h",
+              "ToolTip": "C:\\Users\\shane\\Documents\\Programming 1\\2DGridGameProject\\PushPullGame\\PushPullGame\\Game.h",
               "RelativeToolTip": "PushPullGame\\Game.h",
-              "ViewState": "AgIAACcAAAAAAAAAAAAAAEgAAAAFAAAAAAAAAA==",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAADIAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-24T14:24:20.47Z"
+              "WhenOpened": "2025-11-24T14:24:20.47Z",
+              "EditorCaption": ""
             }
           ]
         }

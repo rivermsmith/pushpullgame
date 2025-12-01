@@ -39,15 +39,31 @@ enum class lastPressed
 	right
 };
 
+enum class entityType
+{
+	bullet,
+	enemy,
+	player
+};
+
+struct Entity
+{
+	const float width{};
+	const float height{};
+	Point2f pos{};
+	float hp{};
+	entityType type{};
+	Vector2f speed{};
+	Rectf rect{ pos.x - width / 2, pos.y - height / 2, width, height };
+};
+
 struct Player
 {
-	const float width{ 70.f };
-	const float height{ 140.f };
-	Point2f pos{ g_WindowWidth / 2, g_WindowHeight - 200.f };
-	Circlef circ{ pos, 50.f };
-	Rectf rect{ pos.x - width / 2, pos.y - height / 2, width, height };
-	float hp{ 100.f };
-	Vector2f speed{};
+	Entity playerEntity{ 70.f,
+		140.f,
+		Point2f{ g_WindowWidth / 2, g_WindowHeight - 200.f },
+		100.f,
+		entityType::player };
 	bool falling{ true };
 	bool left{ false };
 	bool right{ false };
@@ -66,6 +82,8 @@ void UpdatePlayer(float elapsedSec);
 void DrawPlayer();
 
 int GetIndexFromPos(const Point2f& pos);
+Point2f HandleCollision(Entity& entity, Point2f& attemptPos);
+
 #pragma endregion River
 
 #pragma region Attila
