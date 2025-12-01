@@ -70,17 +70,33 @@ Bullet* g_pBulletArray{};
 
 struct Player
 {
-	Entity playerEntity{ 70.f,
+	Entity playerEntity{ 
+		70.f,
 		140.f,
 		Point2f{ g_WindowWidth / 2, g_WindowHeight - 200.f },
 		100.f,
-		entityType::player };
+		entityType::player 
+	};
 	bool falling{ true };
 	bool left{ false };
 	bool right{ false };
 	lastPressed moveState{};
 };
+struct Enemy {
+	Entity enemyEntity{};
+	int fireSpeed{};
+	float lastShot{};
+};
+
 Player g_Player{};
+Enemy g_Enemy{
+	Entity{
+		40.f, 40.f,
+		Point2f{160.f, 160.f},
+		10.f, entityType::enemy
+	},
+	3, 0.f
+};
 const float g_Gravity{ -9.81f * 300 };
 const float g_MoveSpeed{ 900.f };
 const float g_JumpSpeed{ 1800.f };
@@ -110,12 +126,17 @@ void Init();
 void Delete();
 void DrawPlatforms();
 void DrawPushPullRange();
+void DrawEnemy(const Enemy& enemy);
+
+void UpdateEnemy(Enemy& enemy, float elapsedSec);
 
 //void CreatePlatforms(int array[], int gridWidth, int startRow, int endRow, int startCol, int endCol);
 
 int GetIndex(int rowIdx, int colIdx, int nrCols);
 int GetRow(int index, int numCols);
 int GetCol(int index, int numCols);
+Color4f rgba(float r, float g, float b, float a = 255);
+float calculateAngle(const Point2f& originPoint, const Point2f& endPoint);
 #pragma endregion Attila
 
 #pragma endregion ownDeclarations

@@ -19,6 +19,7 @@ void Draw()
 #pragma region Attila
 	DrawPlatforms();
 	DrawPushPullRange();
+	DrawEnemy(g_Enemy);
 #pragma endregion Attila
 
 #pragma region River
@@ -48,7 +49,7 @@ void Update(float elapsedSec)
 	UpdateBullets(elapsedSec);
 
 #pragma endregion River
-
+	UpdateEnemy(g_Enemy, elapsedSec);
 }
 
 void End()
@@ -551,60 +552,14 @@ void DrawPlatforms() {
 		}
 	}
 }
-
 void DrawPushPullRange() {
 	const float
 		rayLength{ 500.f },
-		rayWidth{ g_Pi / 180 * 5 },
-		adj{ g_MousePosition.x - g_Player.playerEntity.pos.x },
-		opp{ g_Player.playerEntity.pos.y - g_MousePosition.y },
-		mouseDistance{
-			sqrtf(powf(adj, 2) + powf(opp, 2))
-		};
+		rayWidth{ g_Pi / 180 * 5 };
 	float
 		rayAngle{ 0 };
 
-	// calculate the angle of the mouse position compared to the player position
-	// should be an update function on it's own so I'll gotta poke with it later
-	if (adj < 0) {
-		if (opp > 0) {
-			const float cosine{ opp / mouseDistance };
-			rayAngle = g_Pi / 2.f + std::acosf(cosine);
-		}
-		else {
-			const float cosine{ std::abs(adj) / mouseDistance };
-			rayAngle = g_Pi + std::acosf(cosine);
-		}
-	}
-	else if (opp < 0) {
-		const float cosine{ std::abs(opp) / mouseDistance };
-		rayAngle += g_Pi / 2.f * 3.f + std::acosf(cosine);
-	}
-	else {
-		const float
-			cosine{ adj / mouseDistance };
-		rayAngle = std::acosf(cosine);
-	}
-
-
-	//std::cout << rayAngle / g_Pi * 180 << "\n";
-
-
-	if (g_Debug) {
-		const Color4f
-			pink{ 1.f, 0.f, 1.f, 1.f },
-			blue{ 0.f,0.f,1.f,1.f },
-			green{ 0.f,1.f,0.f,1.f };
-		
-		utils::SetColor(pink);
-		utils::DrawLine(g_MousePosition, g_Player.playerEntity.pos);
-
-		utils::SetColor(blue);
-		utils::DrawLine(g_Player.playerEntity.pos, Point2f{ g_MousePosition.x, g_Player.playerEntity.pos.y });
-
-		utils::SetColor(green);
-		utils::DrawLine(g_Player.playerEntity.pos, Point2f{ g_Player.playerEntity.pos.x, g_MousePosition.y });
-	}
+	rayAngle = calculateAngle(g_Player.playerEntity.pos, g_MousePosition);
 
 	const Color4f
 		purple{ 0.4157f, 0.051f, 0.6784f, 0.5f };
@@ -621,6 +576,27 @@ void DrawPushPullRange() {
 
 	utils::SetColor(purple);
 	utils::FillArc(g_Player.playerEntity.pos, rayLength, rayLength, rayAngle - rayWidth / 2.f, rayAngle + rayWidth / 2.f);
+}
+void DrawEnemy(const Enemy& enemy) {
+	const Color4f
+		gray{ rgba(119, 123, 134) };
+
+	calculateAngle(enemy.enemyEntity.pos, g_Player.playerEntity.pos);
+
+	utils::SetColor(gray);
+	utils::FillRect(enemy.enemyEntity.rect);
+}
+
+void UpdateEnemy(Enemy& enemy, float elapsedSec) {
+	enemy.lastShot += elapsedSec;
+
+	if (enemy.lastShot > enemy.fireSpeed) {
+		std::cout << "Enemy fire";
+		enemy.lastShot = 0.f;
+	}
+
+	//std::cout << enemy.pos.x << "; " << enemy.pos.y << "\n";
+
 }
 
 //void CreatePlatforms(int array[], int gridWidth, int startRow, int endRow, int startCol, int endCol) {
@@ -639,6 +615,55 @@ int GetRow(int index, int numCols) {
 }
 int GetCol(int index, int numCols) {
 	return index % numCols;
+}
+Color4f rgba(float r, float g, float b, float a) {
+	float colorBit{ 255 };
+	return Color4f{ r / colorBit, g / colorBit, b / colorBit, a / colorBit };
+}
+float calculateAngle(const Point2f& originPoint, const Point2f& endPoint) {
+	const float
+		adj{ endPoint.x - originPoint.x },
+		opp{ originPoint.y - endPoint.y },
+		hyp{
+			sqrtf(powf(adj, 2) + powf(opp, 2))
+		};
+
+	if (g_Debug) {
+		const Color4f
+			pink{ 1.f, 0.f, 1.f, 1.f },
+			blue{ 0.f,0.f,1.f,1.f },
+			green{ 0.f,1.f,0.f,1.f };
+
+		utils::SetColor(pink);
+		utils::DrawLine(endPoint, originPoint);
+
+		utils::SetColor(blue);
+		utils::DrawLine(originPoint, Point2f{ endPoint.x, originPoint.y });
+
+		utils::SetColor(green);
+		utils::DrawLine(originPoint, Point2f{ originPoint.x, endPoint.y });
+	}
+
+	if (adj < 0) {
+		if (opp > 0) {
+			const float cosine{ opp / hyp };
+			return g_Pi / 2.f + std::acosf(cosine);
+		}
+		else {
+			const float cosine{ std::abs(adj) / hyp };
+			return g_Pi + std::acosf(cosine);
+		}
+	}
+	else if (opp < 0) {
+		const float cosine{ std::abs(opp) / hyp };
+		return  g_Pi / 2.f * 3.f + std::acosf(cosine);
+	}
+	else {
+		const float
+			cosine{ adj / hyp };
+		return std::acosf(cosine);
+	}
+
 }
 
 #pragma endregion Attila
