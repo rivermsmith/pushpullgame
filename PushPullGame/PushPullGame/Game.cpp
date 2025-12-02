@@ -16,39 +16,20 @@ void Draw()
 	ClearBackground();
 
 	// Put your own draw statements here
-#pragma region Attila
 	DrawPlatforms();
 	DrawPushPullRange();
-	DrawEnemy(g_Enemy);
-#pragma endregion Attila
-
-#pragma region River
 	DrawPlayer();
 	DrawBullets();
 
-#pragma endregion River
-
+	//temo
+	DrawEnemy(g_Enemy);
 }
 
 void Update(float elapsedSec)
 {
 	// process input, do physics 
-
-	// e.g. Check keyboard state
-	//const Uint8 *pStates = SDL_GetKeyboardState( nullptr );
-	//if ( pStates[SDL_SCANCODE_RIGHT] )
-	//{
-	//	std::cout << "Right arrow key is down\n";
-	//}
-	//if ( pStates[SDL_SCANCODE_LEFT] && pStates[SDL_SCANCODE_UP])
-	//{
-	//	std::cout << "Left and up arrow keys are down\n";
-	//}
-#pragma region River
 	UpdatePlayer(elapsedSec);
 	UpdateBullets(elapsedSec);
-
-#pragma endregion River
 	UpdateEnemy(g_Enemy, elapsedSec);
 }
 
@@ -63,7 +44,6 @@ void End()
 #pragma region inputHandling											
 void OnKeyDownEvent(SDL_Keycode key)
 {
-#pragma region River
 	switch (key)
 	{
 	case SDLK_a:
@@ -85,26 +65,10 @@ void OnKeyDownEvent(SDL_Keycode key)
 		}
 		break;
 	}
-
-#pragma endregion River
 }
 
 void OnKeyUpEvent(SDL_Keycode key)
 {
-	//switch (key)
-	//{
-	//case SDLK_LEFT:
-	//	//std::cout << "Left arrow key released\n";
-	//	break;
-	//case SDLK_RIGHT:
-	//	//std::cout << "Right arrow key released\n";
-	//	break;
-	//case SDLK_1:
-	//case SDLK_KP_1:
-	//	//std::cout << "Key 1 released\n";
-	//	break;
-	//}
-#pragma region River
 	switch (key)
 	{
 	case SDLK_a:
@@ -145,8 +109,6 @@ void OnKeyUpEvent(SDL_Keycode key)
 	case SDLK_r:
 		g_Debug = !g_Debug;
 	}
-
-#pragma endregion River
 }
 
 void OnMouseMotionEvent(const SDL_MouseMotionEvent& e)
@@ -154,7 +116,6 @@ void OnMouseMotionEvent(const SDL_MouseMotionEvent& e)
 	// SAMPLE CODE: print mouse position
 	const float mouseX{ float(e.x) };
 	const float mouseY{ float(e.y) };
-	//std::cout << "  [" << mouseX << ", " << mouseY << "]\n";
 	g_MousePosition = Point2f{ mouseX, mouseY };
 }
 
@@ -191,7 +152,62 @@ void OnMouseUpEvent(const SDL_MouseButtonEvent& e)
 
 #pragma region ownDefinitions
 // Define your own functions here
-#pragma region River
+
+#pragma region debug
+
+//create 2 bullets on game start for testing
+void DebugBullet()
+{
+	CreateBullet(Point2f{ g_WindowWidth - 200.f, 200.f }, Vector2f{ -200.f, 200.f });
+	CreateBullet(Point2f{ 200.f, 200.f }, Vector2f{ 250.f, 200.f });
+}
+
+#pragma endregion debug
+
+void Init() {
+	//Placeholder -River
+
+	g_Debug = true;
+
+	g_GridSize = 80.f;
+
+	g_GridWidth = static_cast<int>(g_WindowWidth / g_GridSize);
+	g_GridHeight = static_cast<int>(g_WindowHeight / g_GridSize);
+	g_GridArraySize = g_GridHeight * g_GridWidth;
+
+	g_pBulletArray = new Bullet[g_MaxBulletAmount]{};
+
+	//for initial bullet testing only -River
+	DebugBullet();
+
+	//Changed array -River
+	g_pGridArray = new int[g_GridArraySize] 
+		{
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		};
+	//for (int col{ 0 }; col < g_GridWidth; ++col) {
+	//	int row = g_GridHeight - 1;
+	//	g_pGridArray[GetIndex(row, col, g_GridWidth)] = 1;
+	//}
+	//CreatePlatforms(g_pGridArray, g_GridWidth, 0, g_GridWidth, g_GridHeight - 1, g_GridHeight);
+}
+void Delete() {
+	delete[] g_pGridArray;
+	g_pGridArray = nullptr;
+	delete g_pBulletArray;
+	g_pBulletArray = nullptr;
+}
+
+#pragma region draw
+
 void DrawPlayer()
 {
 	SetColor(1.f, 0.6f, 0.6f);
@@ -206,6 +222,74 @@ void DrawPlayer()
 	}
 	SetColor(1.f, 0.f, 0.f);
 }
+void DrawBullets()
+{
+	SetColor(1.f, 0.6f, 1.f);
+	for (int index{}; index < g_BulletAmount; ++index)
+	{
+		Bullet bullet{ g_pBulletArray[index] };
+		FillRect(bullet.bulletEntity.rect);
+	}
+}
+void DrawPlatforms() {
+	const Color4f 
+		green{ 0.f, 1.f, 0.f, 1.f },
+		white{ 1.f,1.f,1.f,1.f };
+
+	for (int idx{ 0 }; idx < g_GridArraySize; ++idx) {
+		const Rectf grid{
+			GetCol(idx, static_cast<int>(g_WindowWidth / g_GridSize))* g_GridSize,
+			GetRow(idx, static_cast<int>(g_WindowWidth / g_GridSize))* g_GridSize,
+			g_GridSize, g_GridSize
+		};
+		if(g_pGridArray[idx] == 1){
+			utils::SetColor(green);
+			utils::FillRect(grid);
+		}
+		if (g_Debug) {
+			utils::SetColor(white);
+			utils::DrawRect(grid);
+		}
+	}
+}
+void DrawPushPullRange() {
+	const float
+		rayLength{ 500.f },
+		rayWidth{ g_Pi / 180 * 5 };
+	float
+		rayAngle{ 0 };
+
+	rayAngle = calculateAngle(g_Player.playerEntity.pos, g_MousePosition);
+
+	const Color4f
+		purple{ 0.4157f, 0.051f, 0.6784f, 0.5f };
+
+	const Point2f
+		leftEnd{
+			g_Player.playerEntity.pos.x + rayLength * std::cosf(rayAngle + rayWidth / 2.f),
+			g_Player.playerEntity.pos.y - rayLength * std::sinf(rayAngle + rayWidth / 2.f)
+		},
+		rightEnd{
+			g_Player.playerEntity.pos.x + rayLength * std::cosf(rayAngle - rayWidth / 2.f),
+			g_Player.playerEntity.pos.y - rayLength * std::sinf(rayAngle - rayWidth / 2.f)
+		};
+
+	utils::SetColor(purple);
+	utils::FillArc(g_Player.playerEntity.pos, rayLength, rayLength, rayAngle - rayWidth / 2.f, rayAngle + rayWidth / 2.f);
+}
+void DrawEnemy(const Enemy& enemy) {
+	const Color4f
+		gray{ rgba(119, 123, 134) };
+
+	calculateAngle(enemy.enemyEntity.pos, g_Player.playerEntity.pos);
+
+	utils::SetColor(gray);
+	utils::FillRect(enemy.enemyEntity.rect);
+}
+
+#pragma endregion draw
+
+#pragma region update
 
 void UpdatePlayer(float elapsedSec)
 {
@@ -239,17 +323,6 @@ void UpdatePlayer(float elapsedSec)
 	g_Player.playerEntity.rect.top = g_Player.playerEntity.pos.y - g_Player.playerEntity.height / 2;
 	g_Player.playerEntity.rect.left = g_Player.playerEntity.pos.x - g_Player.playerEntity.width / 2;
 }
-
-void DrawBullets()
-{
-	SetColor(1.f, 0.6f, 1.f);
-	for (int index{}; index < g_BulletAmount; ++index)
-	{
-		Bullet bullet{ g_pBulletArray[index] };
-		FillRect(bullet.bulletEntity.rect);
-	}
-}
-
 void UpdateBullets(float elapsedSec)
 {
 	//updates each bullet in the array
@@ -261,6 +334,46 @@ void UpdateBullets(float elapsedSec)
 		bullet.bulletEntity.rect.top = bullet.bulletEntity.pos.y - bullet.bulletEntity.height / 2;
 		bullet.bulletEntity.rect.left = bullet.bulletEntity.pos.x - bullet.bulletEntity.width / 2;
 		g_pBulletArray[index] = bullet;
+	}
+}
+void UpdateEnemy(Enemy& enemy, float elapsedSec) {
+	enemy.lastShot += elapsedSec;
+
+	if (enemy.lastShot > enemy.fireSpeed) {
+		std::cout << "Enemy fire";
+		enemy.lastShot = 0.f;
+	}
+
+	//std::cout << enemy.pos.x << "; " << enemy.pos.y << "\n";
+
+}
+
+//creates a new bullet if there are less than max bullets, and returns the index of the created bullet within the bullet array. raises current bullet amount
+int CreateBullet(const Point2f& startPos, const Vector2f& speed)
+{
+	if (g_BulletAmount < g_MaxBulletAmount)
+	{
+		Bullet bullet{};
+		bullet.bulletEntity.pos = startPos;
+		bullet.bulletEntity.width = 15.f;
+		bullet.bulletEntity.height = 15.f;
+		bullet.bulletEntity.speed = speed;
+		bullet.bulletEntity.rect.width = 15.f;
+		bullet.bulletEntity.rect.height = 15.f;
+		g_pBulletArray[g_BulletAmount] = bullet;
+		++g_BulletAmount;
+		return g_BulletAmount - 1;
+	}
+	else return -1;
+}
+//removes a bullet from the bullet array and moves everything after it down by 1. decrements current bullet amount
+void RemoveBullet(Bullet& bullet)
+{
+	for (int index{ bullet.bulletIndex }; index <= g_BulletAmount; ++index)
+	{
+		g_pBulletArray[index] = g_pBulletArray[index + 1];
+		g_pBulletArray[index + 1] = Bullet{};
+		--g_BulletAmount;
 	}
 }
 
@@ -443,170 +556,16 @@ Point2f HandleWallCollision(Entity& entity, Point2f& attemptPos, int bulletIndex
 	
 	return attemptPos;
 }
-
 //to be implemented
 void HandleEntityCollision(Entity& entity, Point2f& attemptPos)
 {
 
 }
 
-//create 2 bullets on game start for testing
-void DebugBullet()
-{
-	CreateBullet(Point2f{ g_WindowWidth - 200.f, 200.f }, Vector2f{ -200.f, 200.f });
-	CreateBullet(Point2f{ 200.f, 200.f }, Vector2f{ 250.f, 200.f });
-}
+#pragma endregion update
 
-//creates a new bullet if there are less than max bullets, and returns the index of the created bullet within the bullet array. raises current bullet amount
-int CreateBullet(const Point2f& startPos, const Vector2f& speed)
-{
-	if (g_BulletAmount < g_MaxBulletAmount)
-	{
-		Bullet bullet{};
-		bullet.bulletEntity.pos = startPos;
-		bullet.bulletEntity.width = 15.f;
-		bullet.bulletEntity.height = 15.f;
-		bullet.bulletEntity.speed = speed;
-		bullet.bulletEntity.rect.width = 15.f;
-		bullet.bulletEntity.rect.height = 15.f;
-		g_pBulletArray[g_BulletAmount] = bullet;
-		++g_BulletAmount;
-		return g_BulletAmount - 1;
-	}
-	else return -1;
-}
+#pragma region utils
 
-//removes a bullet from the bullet array and moves everything after it down by 1. decrements current bullet amount
-void RemoveBullet(Bullet& bullet)
-{
-	for (int index{ bullet.bulletIndex }; index <= g_BulletAmount; ++index)
-	{
-		g_pBulletArray[index] = g_pBulletArray[index + 1];
-		g_pBulletArray[index + 1] = Bullet{};
-		--g_BulletAmount;
-	}
-}
-#pragma endregion River
-
-#pragma region Attila
-void Init() {
-	//Placeholder -River
-
-	g_Debug = true;
-
-	g_GridSize = 80.f;
-
-	g_GridWidth = static_cast<int>(g_WindowWidth / g_GridSize);
-	g_GridHeight = static_cast<int>(g_WindowHeight / g_GridSize);
-	g_GridArraySize = g_GridHeight * g_GridWidth;
-
-	g_pBulletArray = new Bullet[g_MaxBulletAmount]{};
-
-	//for initial bullet testing only -River
-	DebugBullet();
-
-	//Changed array -River
-	g_pGridArray = new int[g_GridArraySize] 
-		{
-			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		};
-	//for (int col{ 0 }; col < g_GridWidth; ++col) {
-	//	int row = g_GridHeight - 1;
-	//	g_pGridArray[GetIndex(row, col, g_GridWidth)] = 1;
-	//}
-	//CreatePlatforms(g_pGridArray, g_GridWidth, 0, g_GridWidth, g_GridHeight - 1, g_GridHeight);
-}
-void Delete() {
-	delete[] g_pGridArray;
-	g_pGridArray = nullptr;
-	delete g_pBulletArray;
-	g_pBulletArray = nullptr;
-}
-
-void DrawPlatforms() {
-	const Color4f 
-		green{ 0.f, 1.f, 0.f, 1.f },
-		white{ 1.f,1.f,1.f,1.f };
-
-	for (int idx{ 0 }; idx < g_GridArraySize; ++idx) {
-		const Rectf grid{
-			GetCol(idx, static_cast<int>(g_WindowWidth / g_GridSize))* g_GridSize,
-			GetRow(idx, static_cast<int>(g_WindowWidth / g_GridSize))* g_GridSize,
-			g_GridSize, g_GridSize
-		};
-		if(g_pGridArray[idx] == 1){
-			utils::SetColor(green);
-			utils::FillRect(grid);
-		}
-		if (g_Debug) {
-			utils::SetColor(white);
-			utils::DrawRect(grid);
-		}
-	}
-}
-void DrawPushPullRange() {
-	const float
-		rayLength{ 500.f },
-		rayWidth{ g_Pi / 180 * 5 };
-	float
-		rayAngle{ 0 };
-
-	rayAngle = calculateAngle(g_Player.playerEntity.pos, g_MousePosition);
-
-	const Color4f
-		purple{ 0.4157f, 0.051f, 0.6784f, 0.5f };
-
-	const Point2f
-		leftEnd{
-			g_Player.playerEntity.pos.x + rayLength * std::cosf(rayAngle + rayWidth / 2.f),
-			g_Player.playerEntity.pos.y - rayLength * std::sinf(rayAngle + rayWidth / 2.f)
-		},
-		rightEnd{
-			g_Player.playerEntity.pos.x + rayLength * std::cosf(rayAngle - rayWidth / 2.f),
-			g_Player.playerEntity.pos.y - rayLength * std::sinf(rayAngle - rayWidth / 2.f)
-		};
-
-	utils::SetColor(purple);
-	utils::FillArc(g_Player.playerEntity.pos, rayLength, rayLength, rayAngle - rayWidth / 2.f, rayAngle + rayWidth / 2.f);
-}
-void DrawEnemy(const Enemy& enemy) {
-	const Color4f
-		gray{ rgba(119, 123, 134) };
-
-	calculateAngle(enemy.enemyEntity.pos, g_Player.playerEntity.pos);
-
-	utils::SetColor(gray);
-	utils::FillRect(enemy.enemyEntity.rect);
-}
-
-void UpdateEnemy(Enemy& enemy, float elapsedSec) {
-	enemy.lastShot += elapsedSec;
-
-	if (enemy.lastShot > enemy.fireSpeed) {
-		std::cout << "Enemy fire";
-		enemy.lastShot = 0.f;
-	}
-
-	//std::cout << enemy.pos.x << "; " << enemy.pos.y << "\n";
-
-}
-
-//void CreatePlatforms(int array[], int gridWidth, int startRow, int endRow, int startCol, int endCol) {
-//	for (int col{ startCol }; col < endCol; ++col) {
-//		for (int row{ startRow }; row < endRow; ++row) {
-//			*(array + GetIndex(row, col, gridWidth)) = 1;
-//			//array[GetIndex(row, col, gridWidth)] = 1;
-//		}
-//	}
-//}
 int GetIndex(int rowIdx, int colIdx, int nrCols) {
 	return rowIdx * nrCols + colIdx;
 }
@@ -616,6 +575,12 @@ int GetRow(int index, int numCols) {
 int GetCol(int index, int numCols) {
 	return index % numCols;
 }
+int GetIndexFromPos(const Point2f& pos)
+{
+	int index{ static_cast<int>(pos.y / g_GridSize) * g_GridWidth + static_cast<int>(pos.x / g_GridSize) };
+	return index;
+}
+
 Color4f rgba(float r, float g, float b, float a) {
 	float colorBit{ 255 };
 	return Color4f{ r / colorBit, g / colorBit, b / colorBit, a / colorBit };
@@ -666,17 +631,6 @@ float calculateAngle(const Point2f& originPoint, const Point2f& endPoint) {
 
 }
 
-#pragma endregion Attila
-
-#pragma region River
-
-int GetIndexFromPos(const Point2f& pos)
-{
-	int index{ static_cast<int>(pos.y / g_GridSize) * g_GridWidth + static_cast<int>(pos.x / g_GridSize) };
-	return index;
-}
-
-#pragma endregion River
-
+#pragma endregion utils
 
 #pragma endregion ownDefinitions

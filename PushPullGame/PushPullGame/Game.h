@@ -16,24 +16,7 @@ float g_WindowHeight{ 720 };
 #pragma region ownDeclarations
 // Declare your own global variables here
 
-bool g_Debug{};
-
-#pragma region Attila
-float
-	g_GridSize{};
-int
-	g_GridHeight{},
-	g_GridWidth{},
-	g_GridArraySize{};
-
-int* g_pGridArray{};
-
-Point2f g_MousePosition{};
-#pragma endregion Attila
-#pragma region River
-
-int g_BulletAmount{};
-const int g_MaxBulletAmount{ 50 };
+#pragma region enums
 
 enum class lastPressed
 {
@@ -41,13 +24,16 @@ enum class lastPressed
 	left,
 	right
 };
-
 enum class entityType
 {
 	bullet,
 	enemy,
 	player
 };
+
+#pragma endregion enums
+
+#pragma region structs
 
 struct Entity
 {
@@ -59,15 +45,6 @@ struct Entity
 	Vector2f speed{};
 	Rectf rect{ pos.x - width / 2, pos.y - height / 2, width, height };
 };
-
-struct Bullet
-{
-	Entity bulletEntity{ 0.f, 0.f, Point2f{ 200.f, 200.f }, 1.f, entityType::bullet, Vector2f{} };
-	int bulletIndex{};
-};
-
-Bullet* g_pBulletArray{};
-
 struct Player
 {
 	Entity playerEntity{ 
@@ -87,8 +64,34 @@ struct Enemy {
 	int fireSpeed{};
 	float lastShot{};
 };
+struct Bullet
+{
+	Entity bulletEntity{ 0.f, 0.f, Point2f{ 200.f, 200.f }, 1.f, entityType::bullet, Vector2f{} };
+	int bulletIndex{};
+};
 
+#pragma endregion structs
+
+bool g_Debug{};
+const float g_Gravity{ -9.81f * 300 };
+
+Point2f g_MousePosition{};
+#pragma region grid
+int* g_pGridArray{};
+float
+	g_GridSize{};
+int
+	g_GridHeight{},
+	g_GridWidth{},
+	g_GridArraySize{};
+#pragma endregion grid
+#pragma region player
 Player g_Player{};
+const float g_MoveSpeed{ 900.f };
+const float g_JumpSpeed{ 1800.f };
+bool g_HoldJump{};
+#pragma endregion player
+#pragma region enemies
 Enemy g_Enemy{
 	Entity{
 		40.f, 40.f,
@@ -97,47 +100,57 @@ Enemy g_Enemy{
 	},
 	3, 0.f
 };
-const float g_Gravity{ -9.81f * 300 };
-const float g_MoveSpeed{ 900.f };
-const float g_JumpSpeed{ 1800.f };
-bool g_HoldJump{};
-#pragma endregion River
+#pragma endregion enemies
+#pragma region bullets
+int g_BulletAmount{};
+const int g_MaxBulletAmount{ 50 };
+Bullet* g_pBulletArray{};
+#pragma endregion bullets
 
 // Declare your own functions here
-#pragma region River
-void UpdatePlayer(float elapsedSec);
-void UpdateBullets(float elapsedSec);
-void DrawPlayer();
-void DrawBullets();
-int CreateBullet(const Point2f& startPos, const Vector2f& speed);
 
-void RemoveBullet(Bullet& bullet);
-
+#pragma region debug
 void DebugBullet();
+#pragma endregion debug
 
-int GetIndexFromPos(const Point2f& pos);
-Point2f HandleWallCollision(Entity& entity, Point2f& attemptPos, int bulletIndex = 0);
-void HandleEntityCollision(Entity& entity, Point2f& attemptPos);
-
-#pragma endregion River
-
-#pragma region Attila
 void Init();
 void Delete();
+
+#pragma region draw
+
+void DrawPlayer();
+void DrawBullets();
 void DrawPlatforms();
 void DrawPushPullRange();
 void DrawEnemy(const Enemy& enemy);
 
+#pragma endregion draw
+
+#pragma region update
+
+void UpdatePlayer(float elapsedSec);
+void UpdateBullets(float elapsedSec);
 void UpdateEnemy(Enemy& enemy, float elapsedSec);
 
-//void CreatePlatforms(int array[], int gridWidth, int startRow, int endRow, int startCol, int endCol);
+int CreateBullet(const Point2f& startPos, const Vector2f& speed);
+void RemoveBullet(Bullet& bullet);
+
+Point2f HandleWallCollision(Entity& entity, Point2f& attemptPos, int bulletIndex = 0);
+void HandleEntityCollision(Entity& entity, Point2f& attemptPos);
+
+#pragma endregion update
+
+#pragma region utils
 
 int GetIndex(int rowIdx, int colIdx, int nrCols);
 int GetRow(int index, int numCols);
 int GetCol(int index, int numCols);
+int GetIndexFromPos(const Point2f& pos);
+
 Color4f rgba(float r, float g, float b, float a = 255);
 float calculateAngle(const Point2f& originPoint, const Point2f& endPoint);
-#pragma endregion Attila
+
+#pragma endregion utils
 
 #pragma endregion ownDeclarations
 
