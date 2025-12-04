@@ -133,7 +133,7 @@ void OnMouseUpEvent(const SDL_MouseButtonEvent& e)
 	//const float mouseX{ float(e.x) };
 	//const float mouseY{ float(e.y) };
 	//std::cout << "  [" << mouseX << ", " << mouseY << "]\n";
-	
+
 	// SAMPLE CODE: check which mouse button was pressed
 	//switch (e.button)
 	//{
@@ -158,7 +158,7 @@ void OnMouseUpEvent(const SDL_MouseButtonEvent& e)
 //create 2 bullets on game start for testing
 void DebugBullet()
 {
-	CreateBullet(Point2f{ g_WindowWidth - 200.f, 200.f }, Vector2f{ -200.f, 200.f });
+	CreateBullet(Point2f{ g_WindowWidth - 200.f, 150.f }, Vector2f{ -200.f, 200.f });
 	CreateBullet(Point2f{ 200.f, 200.f }, Vector2f{ 250.f, 200.f });
 }
 
@@ -181,17 +181,17 @@ void Init() {
 	DebugBullet();
 
 	//Changed array -River
-	g_pGridArray = new int[g_GridArraySize] 
+	g_pGridArray = new int[g_GridArraySize]
 		{
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+				1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		};
 	//for (int col{ 0 }; col < g_GridWidth; ++col) {
 	//	int row = g_GridHeight - 1;
@@ -232,17 +232,17 @@ void DrawBullets()
 	}
 }
 void DrawPlatforms() {
-	const Color4f 
+	const Color4f
 		green{ 0.f, 1.f, 0.f, 1.f },
 		white{ 1.f,1.f,1.f,1.f };
 
 	for (int idx{ 0 }; idx < g_GridArraySize; ++idx) {
 		const Rectf grid{
-			GetCol(idx, static_cast<int>(g_WindowWidth / g_GridSize))* g_GridSize,
-			GetRow(idx, static_cast<int>(g_WindowWidth / g_GridSize))* g_GridSize,
+			GetCol(idx, static_cast<int>(g_WindowWidth / g_GridSize)) * g_GridSize,
+			GetRow(idx, static_cast<int>(g_WindowWidth / g_GridSize)) * g_GridSize,
 			g_GridSize, g_GridSize
 		};
-		if(g_pGridArray[idx] == 1){
+		if (g_pGridArray[idx] == 1) {
 			utils::SetColor(green);
 			utils::FillRect(grid);
 		}
@@ -268,11 +268,11 @@ void DrawPushPullRange() {
 		leftEnd{
 			g_Player.playerEntity.pos.x + rayLength * std::cosf(rayAngle + rayWidth / 2.f),
 			g_Player.playerEntity.pos.y - rayLength * std::sinf(rayAngle + rayWidth / 2.f)
-		},
+	},
 		rightEnd{
 			g_Player.playerEntity.pos.x + rayLength * std::cosf(rayAngle - rayWidth / 2.f),
 			g_Player.playerEntity.pos.y - rayLength * std::sinf(rayAngle - rayWidth / 2.f)
-		};
+	};
 
 	utils::SetColor(purple);
 	utils::FillArc(g_Player.playerEntity.pos, rayLength, rayLength, rayAngle - rayWidth / 2.f, rayAngle + rayWidth / 2.f);
@@ -296,22 +296,25 @@ void UpdatePlayer(float elapsedSec)
 	//handles horizontal movement direction
 	switch (g_Player.moveState)
 	{
-		case lastPressed::none:
-			g_Player.playerEntity.speed.x = 0;
-			break;
-		case lastPressed::left:
-			g_Player.playerEntity.speed.x = -g_MoveSpeed;
-			break;
-		case lastPressed::right:
-			g_Player.playerEntity.speed.x = g_MoveSpeed;
-			break;
+	case lastPressed::none:
+		g_Player.playerEntity.speed.x = 0;
+		break;
+	case lastPressed::left:
+		g_Player.playerEntity.speed.x = -g_MoveSpeed;
+		break;
+	case lastPressed::right:
+		g_Player.playerEntity.speed.x = g_MoveSpeed;
+		break;
 	}
 
 	//position the player will attempt to move to. the position is located in the exact center of the rectangle, hence the half height and half width increases to find the borders of it
 	Point2f attemptPos = Point2f{ g_Player.playerEntity.pos.x + (g_Player.playerEntity.speed.x * elapsedSec), g_Player.playerEntity.pos.y + (g_Player.playerEntity.speed.y * elapsedSec) };
 
 	//moves player to the the attempted position calculated at the beginning and modified through these collision checks
-	g_Player.playerEntity.pos = HandleWallCollision(g_Player.playerEntity, attemptPos);
+	HandleWallCollision(g_Player.playerEntity, attemptPos);
+	//The method already changed the attempedPos so I changed it to use that instead of the return value
+	g_Player.playerEntity.pos = attemptPos;
+
 
 	//no vertical collision? keep falling.
 	if (g_Player.falling)
@@ -330,7 +333,8 @@ void UpdateBullets(float elapsedSec)
 	{
 		Bullet bullet{ g_pBulletArray[index] };
 		Point2f attemptPos = Point2f{ bullet.bulletEntity.pos.x + (bullet.bulletEntity.speed.x * elapsedSec), bullet.bulletEntity.pos.y + (bullet.bulletEntity.speed.y * elapsedSec) };
-		bullet.bulletEntity.pos = HandleWallCollision(bullet.bulletEntity, attemptPos, bullet.bulletIndex);
+		HandleWallCollision(bullet.bulletEntity, attemptPos, bullet.bulletIndex);
+		bullet.bulletEntity.pos = attemptPos;
 		bullet.bulletEntity.rect.top = bullet.bulletEntity.pos.y - bullet.bulletEntity.height / 2;
 		bullet.bulletEntity.rect.left = bullet.bulletEntity.pos.x - bullet.bulletEntity.width / 2;
 		g_pBulletArray[index] = bullet;
@@ -340,8 +344,16 @@ void UpdateEnemy(Enemy& enemy, float elapsedSec) {
 	enemy.lastShot += elapsedSec;
 
 	if (enemy.lastShot > enemy.fireSpeed) {
-		std::cout << "Enemy fire";
+		//std::cout << "Enemy fire";
 		enemy.lastShot = 0.f;
+
+		const Vector2f bulletDirection{
+			g_Player.playerEntity.pos.x - enemy.enemyEntity.pos.x,
+			g_Player.playerEntity.pos.y - enemy.enemyEntity.pos.y
+		};
+		const Vector2f bulletSpeed = utils::Scale(utils::Normalize(bulletDirection), 300);
+
+		CreateBullet(enemy.enemyEntity.pos, bulletSpeed);
 	}
 
 	//std::cout << enemy.pos.x << "; " << enemy.pos.y << "\n";
@@ -353,13 +365,20 @@ int CreateBullet(const Point2f& startPos, const Vector2f& speed)
 {
 	if (g_BulletAmount < g_MaxBulletAmount)
 	{
-		Bullet bullet{};
-		bullet.bulletEntity.pos = startPos;
-		bullet.bulletEntity.width = 15.f;
-		bullet.bulletEntity.height = 15.f;
-		bullet.bulletEntity.speed = speed;
-		bullet.bulletEntity.rect.width = 15.f;
-		bullet.bulletEntity.rect.height = 15.f;
+		Bullet bullet{
+			Entity{
+				15.f, 15.f,
+				startPos, 1.f,
+				entityType::bullet,
+				speed
+			},
+			g_BulletAmount
+		};
+		//bullet.bulletEntity.pos = startPos;
+		//bullet.bulletEntity.speed = speed;
+		//bullet.bulletEntity.rect.width = 15.f;
+		//bullet.bulletEntity.rect.height = 15.f;
+
 		g_pBulletArray[g_BulletAmount] = bullet;
 		++g_BulletAmount;
 		return g_BulletAmount - 1;
@@ -369,12 +388,14 @@ int CreateBullet(const Point2f& startPos, const Vector2f& speed)
 //removes a bullet from the bullet array and moves everything after it down by 1. decrements current bullet amount
 void RemoveBullet(Bullet& bullet)
 {
-	for (int index{ bullet.bulletIndex }; index <= g_BulletAmount; ++index)
+	std::cout << bullet.bulletIndex << "\n";
+	for (int index{ bullet.bulletIndex }; index < g_BulletAmount; ++index)
 	{
 		g_pBulletArray[index] = g_pBulletArray[index + 1];
 		g_pBulletArray[index + 1] = Bullet{};
-		--g_BulletAmount;
+		/*--g_pBulletArray[index].bulletIndex;*/
 	}
+	--g_BulletAmount;
 }
 
 Point2f HandleWallCollision(Entity& entity, Point2f& attemptPos, int bulletIndex)
@@ -553,7 +574,7 @@ Point2f HandleWallCollision(Entity& entity, Point2f& attemptPos, int bulletIndex
 			entity.speed = Vector2f{ 0.f, entity.speed.y };
 		}
 	}
-	
+
 	return attemptPos;
 }
 //to be implemented
@@ -591,7 +612,7 @@ float calculateAngle(const Point2f& originPoint, const Point2f& endPoint) {
 		opp{ originPoint.y - endPoint.y },
 		hyp{
 			sqrtf(powf(adj, 2) + powf(opp, 2))
-		};
+	};
 
 	if (g_Debug) {
 		const Color4f

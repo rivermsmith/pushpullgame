@@ -47,12 +47,12 @@ struct Entity
 };
 struct Player
 {
-	Entity playerEntity{ 
+	Entity playerEntity{
 		70.f,
 		140.f,
 		Point2f{ g_WindowWidth / 2, g_WindowHeight - 200.f },
 		100.f,
-		entityType::player 
+		entityType::player
 	};
 	bool falling{ true };
 	bool left{ false };
@@ -66,7 +66,7 @@ struct Enemy {
 };
 struct Bullet
 {
-	Entity bulletEntity{ 0.f, 0.f, Point2f{ 200.f, 200.f }, 1.f, entityType::bullet, Vector2f{} };
+	Entity bulletEntity{};
 	int bulletIndex{};
 };
 
@@ -79,11 +79,11 @@ Point2f g_MousePosition{};
 #pragma region grid
 int* g_pGridArray{};
 float
-	g_GridSize{};
+g_GridSize{};
 int
-	g_GridHeight{},
-	g_GridWidth{},
-	g_GridArraySize{};
+g_GridHeight{},
+g_GridWidth{},
+g_GridArraySize{};
 #pragma endregion grid
 #pragma region player
 Player g_Player{};
@@ -98,11 +98,11 @@ Enemy g_Enemy{
 		Point2f{160.f, 160.f},
 		10.f, entityType::enemy
 	},
-	3, 0.f
+	1, 0.f
 };
 #pragma endregion enemies
 #pragma region bullets
-int g_BulletAmount{};
+int g_BulletAmount{ 0 };
 const int g_MaxBulletAmount{ 50 };
 Bullet* g_pBulletArray{};
 #pragma endregion bullets
